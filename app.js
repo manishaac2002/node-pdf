@@ -1,28 +1,41 @@
-// import express from 'express';
-// import PDFDocument from 'pdfkit';
-// const app = express();
+import express  from 'express';
+import axios from 'axios';
+import fs from 'fs';
+import PDFDocument  from 'pdfkit';
 
-// app.get('/convert', (req, res) => {
-//   const text = "  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsu";
+const app = express();
 
-//   // Create a new PDF document
-//   const doc = new PDFDocument();
+// Define your routeshttps://th.bing.com/th/id/OIP.pUA_xIvhzfDMgmpUuWIzQAHaE5?pid=ImgDet&rs=1
+app.get('/convert', async (req, res) => {
+  try {
+    // Fetch the URL of the image from the query parameter
+    const imageUrl = "https://th.bing.com/th/id/OIP.pUA_xIvhzfDMgmpUuWIzQAHaE5?pid=ImgDet&rs=1";
 
-//   // Set the response headers for PDF
-//   res.setHeader('Content-Type', 'application/pdf');
-//   res.setHeader('Content-Disposition', 'attachment; filename=Dummyfile.pdf');
+    // Fetch the image data from the URL using Axios
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imageData = response.data;
 
-//   // Pipe the PDF document to the response stream
-//   doc.pipe(res);
+    // Create a PDF document
+    const doc = new PDFDocument();
 
-//   // Add the text to the PDF document
-//   doc.text(text);
+    // Set the response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=output.pdf');
 
-//   // Finalize the PDF and end the response
-//   doc.end();
-// });
+    // Pipe the PDF document to the response
+    doc.pipe(res);
 
-// // Start the server
-// app.listen(3000, () => {
-//   console.log('Server is running on port 3000');
-// });
+    // Embed the image in the PDF document
+    doc.image(imageData);
+
+    // Finalize the PDF and end the response
+    doc.end();
+  } catch (error) {
+    res.status(500).send('An error occurred.');
+  }
+});
+
+// Start the server
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
+});
